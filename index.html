@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的每日記事本</title>
+    <style>
+        /* CSS 樣式區域：負責畫面的美觀 */
+        body {
+            font-family: "微軟正黑體", sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .notebook-container {
+            background-color: #fff;
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            border-top: 5px solid #4a90e2;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .date-control {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="date"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 15px;
+            box-sizing: border-box; /* 確保 padding 不會撐大寬度 */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical; /* 允許垂直調整大小 */
+            font-size: 1.1rem;
+            line-height: 1.6;
+            background-color: #fafafa;
+            margin-bottom: 1rem;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4a90e2;
+            background-color: #fff;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #357abd;
+        }
+
+        #status-msg {
+            margin-right: 15px;
+            font-size: 0.9rem;
+            color: green;
+            opacity: 0; /* 預設隱藏 */
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="notebook-container">
+        <h1>📅 個人每日記事</h1>
+        
+        <div class="date-control">
+            <label for="date-picker">選擇日期：</label>
+            <input type="date" id="date-picker">
+        </div>
+
+        <textarea id="note-content" placeholder="今天發生了什麼事？寫下來吧..."></textarea>
+
+        <div class="actions">
+            <span id="status-msg">已儲存！</span>
+            <button onclick="saveNote()">儲存記事</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript 邏輯區域：負責功能運作
+
+        // 1. 獲取 HTML 元素
+        const datePicker = document.getElementById('date-picker');
+        const noteContent = document.getElementById('note-content');
+        const statusMsg = document.getElementById('status-msg');
+
+        // 2. 初始化：設定日期為「今天」並載入資料
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0]; // 格式化為 YYYY-MM-DD
+            datePicker.value = today;
+            loadNote(today);
+        };
+
+        // 3. 當日期改變時，載入該日期的記事
+        datePicker.addEventListener('change', function() {
+            const selectedDate = this.value;
+            loadNote(selectedDate);
+        });
+
+        // 4. 讀取記事功能的函式
+        function loadNote(date) {
+            // 從 LocalStorage 獲取資料，key 格式為 'note_2023-10-27'
+            const savedNote = localStorage.getItem('note_' + date);
+            
+            if (savedNote) {
+                noteContent.value = savedNote;
+            } else {
+                noteContent.value = ''; // 如果那天沒資料，清空輸入框
+            }
+            
+            // 重置儲存訊息
+            statusMsg.style.opacity = '0'; 
+        }
+
+        // 5. 儲存記事功能的函式
+        function saveNote() {
+            const date = datePicker.value;
+            const content = noteContent.value;
+
+            if (!date) {
+                alert("請先選擇日期！");
+                return;
+            }
+
+            // 將資料存入 LocalStorage
+            localStorage.setItem('note_' + date, content);
+
+            // 顯示「已儲存」的提示動畫
+            showStatus();
+        }
+
+        // 顯示儲存成功的提示
+        function showStatus() {
+            statusMsg.style.opacity = '1';
+            setTimeout(() => {
+                statusMsg.style.opacity = '0';
+            }, 2000); // 2秒後消失
+        }
+    </script>
+</body>
+</html>

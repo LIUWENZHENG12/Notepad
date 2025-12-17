@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="我的日記">
+
+    <title>我的隨身記事本</title>
+    <style>
+        /* 全域設定 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f2f2f7; /* iOS 風格背景灰 */
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 頂部標題列 */
+        .header {
+            background-color: #fff;
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid #d1d1d6;
+            padding-top: max(1rem, env(safe-area-inset-top)); /* 避開手機瀏海 */
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #000;
+        }
+
+        /* 主要內容區 */
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* 日期控制區 */
+        .date-control {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        input[type="date"] {
+            border: none;
+            background: transparent;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #007aff; /* iOS 藍 */
+            font-family: inherit;
+        }
+
+        /* 輸入框區域 */
+        textarea {
+            flex: 1; /* 填滿剩餘空間 */
+            width: 100%;
+            padding: 15px;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 1rem;
+            resize: none; /* 手機上禁止手動拉大 */
+            -webkit-appearance: none;
+        }
+
+        textarea:focus {
+            outline: none;
+        }
+
+        /* 按鈕區域 */
+        .actions {
+            margin-bottom: 1rem;
+        }
+
+        button {
+            width: 100%;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:active {
+            background-color: #0063ce;
+            transform: scale(0.98);
+        }
+
+        /* 提示訊息 */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 17px;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>📝 個人隨身筆記</h1>
+    </div>
+
+    <div class="container">
+        <div class="date-control">
+            <span>📅 日期</span>
+            <input type="date" id="date-picker">
+        </div>
+
+        <textarea id="note-content" placeholder="今天發生了什麼事？點擊這裡開始輸入..."></textarea>
+
+        <div class="actions">
+            <button onclick="saveNote()">儲存日記</button>
+        </div>
+    </div>
+
+    <div id="toast">✅ 儲存成功！</div>
+
+    <script>
+        const datePicker = document.getElementById('date-picker');
+        const noteContent = document.getElementById('note-content');
+        const toast = document.getElementById('toast');
+
+        // 初始化
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0];
+            datePicker.value = today;
+            loadNote(today);
+        };
+
+        datePicker.addEventListener('change', function() {
+            loadNote(this.value);
+        });
+
+        function loadNote(date) {
+            const savedNote = localStorage.getItem('note_' + date);
+            noteContent.value = savedNote ? savedNote : '';
+        }
+
+        function saveNote() {
+            const date = datePicker.value;
+            const content = noteContent.value;
+            
+            if (!date) return;
+
+            localStorage.setItem('note_' + date, content);
+            
+            // 顯示手機風格的提示框 (Toast)
+            showToast();
+        }
+
+        function showToast() {
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 2000);
+        }
+    </script>
+</body>
+</html>
